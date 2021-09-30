@@ -36,20 +36,14 @@ class ASB:
     def __init__(self, master):
         self.window = master
         self.window.config(menu=self.init_menu())
-        self.window.bind('<Escape>', lambda _: self.reset())
-        self.window.bind('<Return>', lambda _: self.adjust(self.indicator.get()))
+        self.window.bind('<Escape>', lambda _: self.indicator.set(first_level))
+        self.window.bind('<Return>', lambda _: sbc.set_brightness(self.indicator.get()))
         
+        first_level = sbc.get_brightness()
         self.indicator = Indicator(self.window, 'Brightness Level: ', 0, 100, 10, 18)
-        self.adjust_btn = Button(self.window, text='Adjust', width=8, command= lambda:self.adjust(self.indicator.get()))
+        self.indicator.set(first_level)
+        self.adjust_btn = Button(self.window, text='Adjust', width=8, command=lambda: sbc.set_brightness(self.indicator.get()))
         self.adjust_btn.place(x=230, y=15)
-        self.first_level = sbc.get_brightness()
-        self.reset()
-        
-    def adjust(self, level):
-        sbc.set_brightness(level)
-        
-    def reset(self):
-        self.indicator.set(self.first_level)
 
     def show_about(self):
         dialog = Tk()
@@ -68,6 +62,7 @@ class ASB:
         
     def init_menu(self):
         menu = Menu(self.window)
+        menu.add_command(label='Current', command=lambda: self.indicator.set(sbc.get_brightness()))
         menu.add_command(label='Help', command=lambda: messagebox.showinfo('Help', help_msg))
         menu.add_command(label='About us', command=self.show_about)
         
@@ -75,7 +70,8 @@ class ASB:
 
 
 help_msg = '''
-You can change your screen brightness easily now!\n
+You can change your screen brightness easily now!
+just select the desired brightness level and click adjust button\n
 Shortcuts
 <Enter> Adjust screen brightness
 <Esc>     Reset to first brightness level'''
